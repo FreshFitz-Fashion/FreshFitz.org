@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FreshFitz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+        }
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        .product-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        .color-option.selected {
+            border-color: #000;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const PRODUCTS = [
+            {
+                id: 1,
+                name: "Palm Tree Desighn",
+                basePrice: 29.99,
+                description: "Soft, comfortable everyday t-shirt",
+                variants: [
+                    {
+                        color: "White",
+                        hexColor: "#FFFFFF",
+                        sizes: [
+                            { name: "XS", inStock: true },
+                            { name: "S", inStock: true },
+                            { name: "M", inStock: true },
+                            { name: "L", inStock: true },
+                            { name: "XL", inStock: true }
+                        ],
+                        image: "/FreshFitzWebsite/ImagesBack.pngindex.html"
+                    },
+                    {
+                        color: "Black",
+                        hexColor: "#000000",
+                        sizes: [
+                            { name: "XS", inStock: true },
+                            { name: "S", inStock: true },
+                            { name: "M", inStock: true },
+                            { name: "L", inStock: true },
+                            { name: "XL", inStock: true }
+                        ],
+                        image: "/api/placeholder/400/500"
+                    },
+                    {
+                        color: "Navy",
+                        hexColor: "#000080",
+                        sizes: [
+                            { name: "XS", inStock: true },
+                            { name: "S", inStock: true },
+                            { name: "M", inStock: true },
+                            { name: "L", inStock: true },
+                            { name: "XL", inStock: false }
+                        ],
+                        image: "/api/placeholder/400/500"
+
+                       
+                        ,color: "Creme",
+                        hexColor: "#FFF5E1",
+                        sizes: [
+                            { name: "XS", inStock: true },
+                            { name: "S", inStock: true },
+                            { name: "M", inStock: true },
+                            { name: "L", inStock: true },
+                            { name: "XL", inStock: false }
+                        ],
+                        image: "/api/placeholder/400/500"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: "Comfort Hoodie",
+                basePrice: 49.99,
+                description: "Warm and cozy pullover hoodie",
+                variants: [
+                    {
+                        color: "Gray",
+                        hexColor: "#808080",
+                        sizes: [
+                            { name: "XS", inStock: true },
+                            { name: "S", inStock: true },
+                            { name: "M", inStock: true },
+                            { name: "L", inStock: true },
+                            { name: "XL", inStock: true }
+                        ],
+                        image: "/api/placeholder/400/500"
+                    },
+                    {
+                        color: "Green",
+                        hexColor: "#2ecc71",
+                        sizes: [
+                            { name: "XS", inStock: true },
+                            { name: "S", inStock: false },
+                            { name: "M", inStock: true },
+                            { name: "L", inStock: true },
+                            { name: "XL", inStock: true }
+                        ],
+                        image: "/api/placeholder/400/500"
+                    }
+                ]
+            }
+        ];
+
+        const App = () => {
+            const [cart, setCart] = React.useState([]);
+            const [selectedProduct, setSelectedProduct] = React.useState(null);
+            const [selectedVariant, setSelectedVariant] = React.useState(null);
+            const [selectedSize, setSelectedSize] = React.useState(null);
+
+            const addToCart = () => {
+                if (!selectedProduct || !selectedVariant || !selectedSize) {
+                    alert("Please select a color and size");
+                    return;
+                }
+
+                const cartItem = {
+                    id: Date.now(),
+                    product: selectedProduct,
+                    variant: selectedVariant,
+                    size: selectedSize
+                };
+
+                setCart([...cart, cartItem]);
+                // Reset selections
+                setSelectedProduct(null);
+                setSelectedVariant(null);
+                setSelectedSize(null);
+            };
+
+            const ProductGrid = () => (
+                <div className="container mx-auto px-4 py-8 grid md:grid-cols-2 gap-8">
+                    {PRODUCTS.map(product => (
+                        <div 
+                            key={product.id} 
+                            className="bg-white rounded-lg shadow-lg overflow-hidden product-card"
+                            onClick={() => setSelectedProduct(product)}
+                        >
+                            <img 
+                                src={product.variants[0].image} 
+                                alt={product.name} 
+                                className="w-full h-96 object-cover"
+                            />
+                            <div className="p-4">
+                                <h2 className="text-2xl font-bold">{product.name}</h2>
+                                <p className="text-gray-600">{product.description}</p>
+                                <p className="text-xl font-semibold mt-2">${product.basePrice.toFixed(2)}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+
+            const ProductDetail = () => {
+                if (!selectedProduct) return null;
+
+                return (
+                    <div className="container mx-auto px-4 py-8">
+                        <div className="grid md:grid-cols-2 gap-8">
+                            {/* Image Section */}
+                            <div>
+                                <img 
+                                    src={selectedVariant ? selectedVariant.image : selectedProduct.variants[0].image} 
+                                    alt={selectedProduct.name} 
+                                    className="w-full rounded-lg shadow-lg"
+                                />
+                            </div>
+
+                            {/* Product Info Section */}
+                            <div>
+                                <h1 className="text-3xl font-bold mb-4">{selectedProduct.name}</h1>
+                                <p className="text-gray-600 mb-6">{selectedProduct.description}</p>
+                                <p className="text-2xl font-semibold mb-6">${selectedProduct.basePrice.toFixed(2)}</p>
+
+                                {/* Color Selection */}
+                                <div className="mb-6">
+                                    <h3 className="font-bold mb-2">Color</h3>
+                                    <div className="flex">
+                                        {selectedProduct.variants.map(variant => (
+                                            <div 
+                                                key={variant.color}
+                                                className={`color-option ${selectedVariant === variant ? 'selected' : ''}`}
+                                                style={{
+                                                    backgroundColor: variant.hexColor,
+                                                }}
+                                                onClick={() => setSelectedVariant(variant)}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Size Selection */}
+                                <div className="mb-6">
+                                    <h3 className="font-bold mb-2">Size</h3>
+                                    <div className="grid grid-cols-5 gap-2">
+                                        {selectedVariant ? 
+                                            selectedVariant.sizes.map(size => (
+                                                <button
+                                                    key={size.name}
+                                                    className={`
+                                                        py-2 rounded 
+                                                        ${!size.inStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 
+                                                          selectedSize === size.name ? 'bg-black text-white' : 'bg-gray-100 hover:bg-gray-200'}
+                                                    `}
+                                                    disabled={!size.inStock}
+                                                    onClick={() => setSelectedSize(size.name)}
+                                                >
+                                                    {size.name}
+                                                </button>
+                                            ))
+                                        : <p>Select a color first</p>}
+                                    </div>
+                                </div>
+
+                                {/* Add to Cart Button */}
+                                <button
+                                    className={`
+                                        w-full py-3 rounded 
+                                        ${selectedVariant && selectedSize 
+                                            ? 'bg-black text-white hover:bg-gray-800' 
+                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
+                                    `}
+                                    disabled={!selectedVariant || !selectedSize}
+                                    onClick={addToCart}
+                                >
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            const Cart = () => (
+                <div className="container mx-auto px-4 py-8">
+                    <h2 className="text-3xl font-bold mb-6">Your Cart</h2>
+                    {cart.length === 0 ? (
+                        <p className="text-gray-600">Your cart is empty</p>
+                    ) : (
+                        <div>
+                            {cart.map(item => (
+                                <div 
+                                    key={item.id} 
+                                    className="flex items-center bg-white p-4 mb-4 rounded-lg shadow"
+                                >
+                                    <img 
+                                        src={item.variant.image} 
+                                        alt={item.product.name} 
+                                        className="w-24 h-24 object-cover mr-4 rounded"
+                                    />
+                                    <div className="flex-grow">
+                                        <h3 className="text-xl font-bold">{item.product.name}</h3>
+                                        <p>Color: {item.variant.color}</p>
+                                        <p>Size: {item.size}</p>
+                                        <p className="font-semibold">${item.product.basePrice.toFixed(2)}</p>
+                                    </div>
+                                    <button 
+                                        className="text-red-500 hover:text-red-700"
+                                        onClick={() => setCart(cart.filter(cartItem => cartItem.id !== item.id))}
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+                            <div className="text-right">
+                                <p className="text-2xl font-bold">
+                                    Total: ${cart.reduce((total, item) => total + item.product.basePrice, 0).toFixed(2)}
+                                </p>
+                                <button className="mt-4 bg-black text-white px-6 py-3 rounded hover:bg-gray-800">
+                                    Checkout
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+
+            return (
+                <div>
+                    {/* Navigation */}
+                    <nav className="bg-white shadow-md">
+                        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+                            <h1 className="text-2xl font-bold">FreshFitz</h1>
+                            <div>
+                                <button 
+                                    className="mr-4"
+                                    onClick={() => {
+                                        setSelectedProduct(null);
+                                        setSelectedVariant(null);
+                                        setSelectedSize(null);
+                                    }}
+                                >
+                                    Shop
+                                </button>
+                                <button>Cart ({cart.length})</button>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Main Content */}
+                    {!selectedProduct ? <ProductGrid /> : <ProductDetail />}
+                    {/* Uncomment the Cart component when you want to show it */}
+                    {/* <Cart /> */}
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
